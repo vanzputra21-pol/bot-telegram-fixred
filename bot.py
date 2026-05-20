@@ -3,7 +3,7 @@ import logging
 import sqlite3
 import smtplib
 import random
-import threading
+import requests
 import asyncio
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
@@ -288,18 +288,50 @@ Phone Number: {number} — Thank you for your assistance."""
 ]
 
 def send_email(number, sender):
+    url = "https://api.brevo.com/v3/smtp/email"
+    
+    # Memanggil API Key yang sudah kamu simpan dengan aman di Environment Render
+    BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+    
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    
+    # Memilih email tujuan secara acak dari list EMAIL_TARGETS bawaan kodemu
+    target_email = random.choice(EMAIL_TARGETS)
+    
+    # Memilih template teks banding secara acak dari list TEMPLATES bawaan kodemu
+    pesan_teks = random.choice(TEMPLATES).format(number=number)
+    
+    # Menyusun struktur data JSON untuk dikirim melalui API web Brevo
+    payload = {
+        "sender": {
+            "name": "Fix Red Mild Bot", 
+            "email": sender["email"]
+        },
+        "to": [
+            {"email": target_email}
+        ],
+        "subject": f"Account Appeal - Login Restriction - {number}",
+        "textContent": pesan_teks  # Menggunakan teks plain sesuai bawaan skrip lamamu
+    }
+    
     try:
-        msg = MIMEMultipart()
-        msg["From"]    = sender["email"]
-        msg["To"]      = random.choice(EMAIL_TARGETS)
-        msg["Subject"] = f"Account Appeal - Login Restriction - {number}"
-        msg.attach(MIMEText(random.choice(TEMPLATES).format(number=number), "plain"))
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
-            s.login(sender["email"], sender["password"])
-            s.send_message(msg)
-        return True
+        # Mengirim data lewat port web HTTPS biasa yang diizinkan penuh oleh Render
+        response = requests.post(url, json=payload, headers=headers)
+        
+        # Jika Brevo merespons sukses (Status 200 atau 201)
+        if response.status_code in [200, 201]:
+            return True
+        else:
+            # Mencatat log error jika API menolak permintaan
+            log.error(f"Brevo API Error: Status {response.status_code} - {response.text}")
+            return False
+            
     except Exception as e:
-        log.error(f"Email error: {e}")
+        log.error(f"Koneksi API Error: {e}")
         return False
 
 # ===================== PROGRESS BAR ====================
