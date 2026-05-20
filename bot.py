@@ -9,6 +9,20 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from flask import Flask
+import threading
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is Alpha and Running!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+# Menjalankan Flask di thread terpisah agar tidak mengganggu bot Telegram
+threading.Thread(target=run).start()
 
 # ===================== KONFIGURASI =====================
 BOT_TOKEN  = "8890801291:AAH-hxBQNXUnEaaNPdqg_FdhoungcAGtT9E"   # dari @BotFather
