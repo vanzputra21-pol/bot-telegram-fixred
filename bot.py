@@ -18,13 +18,11 @@ app = Flask('')
 @app.route('/')
 def home():
     return "Bot is Alpha and Running!"
-
-def run():
+def run_flask_server():
     app.run(host='0.0.0.0', port=8080)
 
-# Menjalankan Flask di thread terpisah agar tidak mengganggu bot Telegram
-threading.Thread(target=run).start()
-
+# Menjalankan Flask di thread terpisah secara latar belakang (daemon)
+threading.Thread(target=run_flask_server, daemon=True).start()
 # ===================== KONFIGURASI =====================
 BOT_TOKEN = os.getenv('BOT_TOKEN')   # dari @BotFather
 ADMIN_ID   = 7678868549                       # isi ID Telegram kamu (angka)
