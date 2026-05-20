@@ -25,7 +25,7 @@ def run():
 threading.Thread(target=run).start()
 
 # ===================== KONFIGURASI =====================
-BOT_TOKEN  = "8890801291:AAH-hxBQNXUnEaaNPdqg_FdhoungcAGtT9E"   # dari @BotFather
+BOT_TOKEN = os.getenv('BOT_TOKEN')   # dari @BotFather
 ADMIN_ID   = 7678868549                       # isi ID Telegram kamu (angka)
 COOLDOWN   = 200                     # detik cooldown antar request
 START_TIME = datetime.now()
